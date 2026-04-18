@@ -1,0 +1,942 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IGNUS Accommodation & Transport</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--ink:#0C0E14;--ink2:#13161F;--ink3:#1A1E2A;--ink4:#222636;
+--slate:#2C3248;--slateB:#363D58;
+--sky:#4A9EFF;--sky2:#2B7FE8;--sky3:rgba(74,158,255,0.15);
+--teal:#00C9A7;--teal2:rgba(0,201,167,0.15);
+--amber:#FFB830;--amber2:rgba(255,184,48,0.15);
+--rose:#FF5A7E;--rose2:rgba(255,90,126,0.15);
+--lime:#7ED957;--lime2:rgba(126,217,87,0.15);
+--text:#E8EAF2;--text2:#9BA3BC;--text3:#5C647E;
+--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+--r:10px;--r2:14px;
+}
+body{font-family:'Outfit',sans-serif;background:var(--ink);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--ink2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100}
+.brand{padding:22px 20px 18px;border-bottom:1px solid var(--border)}
+.brand-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--sky);letter-spacing:1px;line-height:1}
+.brand-sub{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px}
+.brand-tag{font-size:10px;background:var(--sky3);color:var(--sky);border-radius:4px;padding:2px 7px;display:inline-block;margin-top:6px;border:1px solid rgba(74,158,255,0.25)}
+.nav-section{padding:16px 10px 4px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin:2px 8px;cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.2s;border:1px solid transparent}
+.nav-item:hover{background:var(--ink3);color:var(--text)}
+.nav-item.active{background:var(--sky3);color:var(--sky);border-color:rgba(74,158,255,0.2)}
+.nav-item .ni{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding:16px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:10px}
+.user-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--sky),var(--teal));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.user-name{font-size:13px;font-weight:500}
+.user-role{font-size:11px;color:var(--text3)}
+
+/* MAIN */
+.main{margin-left:220px;min-height:100vh;padding:24px}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:0.5px;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.badge-live{background:rgba(126,217,87,0.15);border:1px solid rgba(126,217,87,0.3);color:var(--lime);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--lime);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.metric{background:var(--ink2);border:1px solid var(--border);border-radius:var(--r2);padding:18px 20px;position:relative;overflow:hidden;transition:border-color 0.2s}
+.metric:hover{border-color:var(--border2)}
+.metric-accent{position:absolute;top:0;right:0;width:3px;bottom:0;border-radius:0 var(--r2) var(--r2) 0}
+.metric-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+.metric-val{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;margin-bottom:4px}
+.metric-sub{font-size:11px;color:var(--text2)}
+.metric-change{font-size:11px;margin-top:5px}
+.up{color:var(--lime)}.down{color:var(--rose)}
+
+/* GRID LAYOUTS */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:16px}
+
+/* CARD */
+.card{background:var(--ink2);border:1px solid var(--border);border-radius:var(--r2);padding:20px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600;color:var(--text)}
+.card-sub{font-size:12px;color:var(--text3)}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:var(--ink3);color:var(--text3);font-weight:500;text-align:left;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap}
+td{padding:11px 14px;border-top:1px solid var(--border);color:var(--text)}
+tr:hover td{background:rgba(255,255,255,0.015)}
+
+/* BADGE */
+.bdg{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap}
+.bdg-sky{background:var(--sky3);color:var(--sky);border:1px solid rgba(74,158,255,0.2)}
+.bdg-teal{background:var(--teal2);color:var(--teal);border:1px solid rgba(0,201,167,0.2)}
+.bdg-amber{background:var(--amber2);color:var(--amber);border:1px solid rgba(255,184,48,0.2)}
+.bdg-rose{background:var(--rose2);color:var(--rose);border:1px solid rgba(255,90,126,0.2)}
+.bdg-lime{background:var(--lime2);color:var(--lime);border:1px solid rgba(126,217,87,0.2)}
+.bdg-slate{background:rgba(255,255,255,0.05);color:var(--text2);border:1px solid var(--border)}
+
+/* BTN */
+.btn{font-family:'Outfit',sans-serif;font-size:12px;font-weight:500;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-sky{background:var(--sky);color:#fff}.btn-sky:hover{background:var(--sky2)}
+.btn-outline{background:transparent;color:var(--text2);border:1px solid var(--border2)}.btn-outline:hover{border-color:var(--sky);color:var(--sky)}
+.btn-teal{background:var(--teal);color:var(--ink)}.btn-teal:hover{opacity:0.9}
+.btn-rose{background:var(--rose);color:#fff}.btn-rose:hover{opacity:0.9}
+.btn-sm{padding:5px 11px;font-size:11px}
+
+/* PROGRESS */
+.prog-bar{height:5px;background:var(--ink4);border-radius:3px;overflow:hidden;margin-top:7px}
+.prog-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+
+/* TABS */
+.tabs{display:flex;gap:3px;background:var(--ink3);padding:3px;border-radius:9px;margin-bottom:20px;width:fit-content;flex-wrap:wrap}
+.tab-btn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;color:var(--text3);border:none;background:none;font-family:'Outfit',sans-serif;white-space:nowrap}
+.tab-btn.active{background:var(--sky);color:#fff}
+
+/* HOSTEL GRID */
+.hostel-floor{margin-bottom:16px}
+.floor-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+.rooms-row{display:flex;flex-wrap:wrap;gap:6px}
+.room-cell{width:44px;height:38px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid transparent;transition:all 0.2s;font-size:10px;font-weight:600}
+.room-cell:hover{transform:scale(1.08)}
+.room-full{background:rgba(255,90,126,0.2);border-color:rgba(255,90,126,0.4);color:var(--rose)}
+.room-partial{background:rgba(255,184,48,0.15);border-color:rgba(255,184,48,0.35);color:var(--amber)}
+.room-avail{background:rgba(0,201,167,0.12);border-color:rgba(0,201,167,0.3);color:var(--teal)}
+.room-closed{background:rgba(255,255,255,0.04);border-color:var(--border);color:var(--text3)}
+.room-num{font-size:9px;opacity:0.7;margin-top:1px}
+
+/* FORM */
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px}
+.form-input{width:100%;background:var(--ink3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--sky)}
+select.form-input option{background:var(--ink3)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* VOLUNTEER CARD */
+.vol-card{background:var(--ink3);border-radius:var(--r);padding:14px;border:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;transition:border-color 0.2s}
+.vol-card:hover{border-color:var(--border2)}
+.vol-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;border:2px solid transparent}
+.vol-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.vol-role{font-size:11px;color:var(--text2);margin-bottom:6px}
+.vol-zone{font-size:11px;color:var(--text3)}
+
+/* TRANSPORT ROW */
+.transport-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--ink3);border-radius:9px;border:1px solid var(--border);margin-bottom:8px;transition:border-color 0.2s}
+.transport-row:hover{border-color:var(--border2)}
+.route-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.transport-info{flex:1}
+.transport-route{font-size:13px;font-weight:500;margin-bottom:2px}
+.transport-meta{font-size:11px;color:var(--text2)}
+.transport-count{font-size:13px;font-weight:600;color:var(--amber);flex-shrink:0}
+
+/* RUSH TIMELINE */
+.rush-bar-wrap{display:flex;align-items:flex-end;gap:4px;height:80px;margin-top:8px}
+.rush-bar{border-radius:4px 4px 0 0;flex:1;min-width:8px;transition:all 0.3s;cursor:pointer;position:relative}
+.rush-bar:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%);background:var(--ink);border:1px solid var(--border2);border-radius:5px;padding:3px 7px;font-size:10px;white-space:nowrap;color:var(--text);pointer-events:none}
+.rush-label{font-size:9px;color:var(--text3);text-align:center;margin-top:4px;flex:1}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--ink2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:0.5px;margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:22px}
+
+/* SECTION HIDDEN */
+.page{display:none}.page.active{display:block}
+
+/* OCCUPANCY RING */
+.occ-ring-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.occ-ring-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px}
+.occ-ring-val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--text)}
+
+/* ENTRY LOG */
+.log-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.log-item:last-child{border:none}
+.log-time{font-size:11px;color:var(--text3);width:70px;flex-shrink:0}
+.log-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.log-body{flex:1}
+.log-name{font-size:13px;font-weight:500}
+.log-detail{font-size:11px;color:var(--text2)}
+
+/* SEARCH */
+.search-bar{display:flex;gap:8px;margin-bottom:16px}
+.search-bar input{flex:1}
+
+/* LEGEND */
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* CHART WRAP */
+.chart-wrap{position:relative;width:100%}
+
+/* TOOLTIP STYLE */
+.stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.stat-row:last-child{border:none}
+.stat-key{color:var(--text2)}
+.stat-val{font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="brand">
+    <div class="brand-logo">IGNUS'25</div>
+    <div class="brand-sub">Accommodation & Transport</div>
+    <div class="brand-tag">IIT Jodhpur</div>
+  </div>
+  <div class="nav-section">Overview</div>
+  <div class="nav-item active" onclick="goPage('dashboard',this)"><span class="ni">📊</span>Dashboard</div>
+  <div class="nav-section">Participants</div>
+  <div class="nav-item" onclick="goPage('participants',this)"><span class="ni">👥</span>All Participants</div>
+  <div class="nav-item" onclick="goPage('add-participant',this)"><span class="ni">➕</span>Add Participant</div>
+  <div class="nav-item" onclick="goPage('entry-exit',this)"><span class="ni">🚪</span>Entry / Exit Log</div>
+  <div class="nav-section">Accommodation</div>
+  <div class="nav-item" onclick="goPage('rooms',this)"><span class="ni">🏠</span>Room Allocation</div>
+  <div class="nav-item" onclick="goPage('hostels',this)"><span class="ni">🏗️</span>Hostel Map</div>
+  <div class="nav-section">Transport & Team</div>
+  <div class="nav-item" onclick="goPage('transport',this)"><span class="ni">🚌</span>Transport Schedule</div>
+  <div class="nav-item" onclick="goPage('rush',this)"><span class="ni">📈</span>Rush Forecast</div>
+  <div class="nav-item" onclick="goPage('volunteers',this)"><span class="ni">🙋</span>Volunteer Directory</div>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-av">AH</div>
+      <div><div class="user-name">Accommodation Head</div><div class="user-role">Admin Access</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="topbar">
+      <div><div class="page-title">Dashboard</div><div style="font-size:13px;color:var(--text3)">Real-time accommodation & transport overview</div></div>
+      <div class="topbar-right">
+        <div class="badge-live"><div class="pulse-dot"></div>Live</div>
+        <button class="btn btn-sky btn-sm" onclick="goPage('add-participant',document.querySelector('.nav-item:nth-child(6)'))">+ Add Participant</button>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="metric-accent" style="background:var(--sky)"></div><div class="metric-lbl">Total Participants</div><div class="metric-val" style="color:var(--sky)">482</div><div class="metric-sub">Registered this fest</div><div class="metric-change up">↑ 23% vs IGNUS'24</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--teal)"></div><div class="metric-lbl">Checked In</div><div class="metric-val" style="color:var(--teal)">318</div><div class="metric-sub">Currently on campus</div><div class="metric-change up">↑ 66% occupancy</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--amber)"></div><div class="metric-lbl">Rooms Occupied</div><div class="metric-val" style="color:var(--amber)">214</div><div class="metric-sub">of 290 total rooms</div><div class="metric-change" style="color:var(--amber)">74% utilization</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--lime)"></div><div class="metric-lbl">Vacant Rooms</div><div class="metric-val" style="color:var(--lime)">76</div><div class="metric-sub">Ready to assign</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--rose)"></div><div class="metric-lbl">Pending Arrival</div><div class="metric-val" style="color:var(--rose)">164</div><div class="metric-sub">Expected today</div><div class="metric-change down">↓ 48 overdue</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--sky)"></div><div class="metric-lbl">Transport Trips</div><div class="metric-val" style="color:var(--sky)">28</div><div class="metric-sub">Scheduled today</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Hostel Occupancy</span><span class="bdg bdg-sky">Live</span></div>
+        <div id="hostelOccupancy"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Boys vs Girls Split</span></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="splitChart" role="img" aria-label="Donut chart showing boys vs girls accommodation split">Boys 198, Girls 120 participants checked in</canvas></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Arrivals by Hour — Today</span></div>
+        <div class="chart-wrap" style="height:180px"><canvas id="arrivalChart" role="img" aria-label="Bar chart of arrivals per hour">Peak at 4PM with 54 arrivals</canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">College-wise Participants</span></div>
+        <div class="chart-wrap" style="height:180px"><canvas id="collegeChart" role="img" aria-label="Horizontal bar chart of participants by college">Top colleges from Rajasthan and nearby states</canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Recent Activity</span><button class="btn btn-outline btn-sm" onclick="goPage('entry-exit',null)">View All →</button></div>
+      <div id="recentActivity"></div>
+    </div>
+  </div>
+
+  <!-- PARTICIPANTS -->
+  <div class="page" id="page-participants">
+    <div class="topbar">
+      <div><div class="page-title">Participants</div><div style="font-size:13px;color:var(--text3)">All registered participants and their accommodation status</div></div>
+      <div class="topbar-right">
+        <button class="btn btn-sky btn-sm" onclick="goPage('add-participant',null)">+ Add New</button>
+        <button class="btn btn-outline btn-sm">⬇ Export CSV</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="ptab('all',this)">All (482)</button>
+      <button class="tab-btn" onclick="ptab('checkedin',this)">Checked In (318)</button>
+      <button class="tab-btn" onclick="ptab('pending',this)">Pending (164)</button>
+      <button class="tab-btn" onclick="ptab('boys',this)">Boys</button>
+      <button class="tab-btn" onclick="ptab('girls',this)">Girls</button>
+    </div>
+    <div class="search-bar">
+      <input class="form-input" placeholder="🔍 Search by name, college, room, ID..." id="participantSearch" oninput="filterParticipants()">
+      <select class="form-input" style="width:auto" id="hostelFilter" onchange="filterParticipants()">
+        <option value="">All Hostels</option>
+        <option>Hostel 1 (Boys)</option>
+        <option>Hostel 2 (Boys)</option>
+        <option>Hostel 3 (Girls)</option>
+        <option>Guest House</option>
+      </select>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Name</th><th>College</th><th>Gender</th><th>Phone</th><th>Hostel / Room</th><th>Arrival</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="participantTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ADD PARTICIPANT -->
+  <div class="page" id="page-add-participant">
+    <div class="topbar">
+      <div><div class="page-title">Add Participant</div><div style="font-size:13px;color:var(--text3)">Register a new participant and assign accommodation</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:18px">Personal Details</div>
+        <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="ap_name" placeholder="Enter full name"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Gender *</label><select class="form-input" id="ap_gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+          <div class="form-group"><label class="form-label">Phone *</label><input class="form-input" id="ap_phone" placeholder="+91 XXXXX XXXXX"></div>
+        </div>
+        <div class="form-group"><label class="form-label">College / Institution *</label><input class="form-input" id="ap_college" placeholder="e.g. IIT Delhi, NIT Jaipur"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Government ID Type</label><select class="form-input" id="ap_idtype"><option>Aadhar</option><option>PAN</option><option>Passport</option><option>Driving License</option></select></div>
+          <div class="form-group"><label class="form-label">ID Number *</label><input class="form-input" id="ap_idnum" placeholder="ID number"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Emergency Contact Name</label><input class="form-input" id="ap_ecname" placeholder="Parent / Guardian name"></div>
+        <div class="form-group"><label class="form-label">Emergency Contact Phone</label><input class="form-input" id="ap_ecphone" placeholder="+91 XXXXX XXXXX"></div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title" style="margin-bottom:18px">Accommodation Details</div>
+          <div class="form-group"><label class="form-label">Hostel *</label>
+            <select class="form-input" id="ap_hostel" onchange="updateRooms()">
+              <option value="">Select Hostel</option>
+              <option>Hostel 1 (Boys)</option>
+              <option>Hostel 2 (Boys)</option>
+              <option>Hostel 3 (Girls)</option>
+              <option>Guest House</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Room Number *</label><select class="form-input" id="ap_room"><option value="">Select room</option></select></div>
+            <div class="form-group"><label class="form-label">Bed</label><select class="form-input" id="ap_bed"><option>Bed A</option><option>Bed B</option><option>Bed C</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Expected Arrival</label><input type="date" class="form-input" id="ap_arrival" value="2025-03-14"></div>
+            <div class="form-group"><label class="form-label">Expected Departure</label><input type="date" class="form-input" id="ap_dep" value="2025-03-16"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:18px">Transport Details</div>
+          <div class="form-group"><label class="form-label">Mode of Transport</label><select class="form-input" id="ap_transport"><option>Own Arrangement</option><option>Bus from Jodhpur Railway Station</option><option>Bus from Airport</option><option>Bus from Bus Stand</option><option>Shared Cab</option></select></div>
+          <div class="form-group"><label class="form-label">Pickup Location</label><input class="form-input" id="ap_pickup" placeholder="e.g. Jodhpur Railway Station Platform 2"></div>
+          <div class="form-group"><label class="form-label">Arrival Train/Bus/Flight No.</label><input class="form-input" id="ap_flightno" placeholder="e.g. 12460 / 6E401"></div>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <button class="btn btn-outline" style="flex:1;justify-content:center">Save Draft</button>
+            <button class="btn btn-sky" style="flex:1;justify-content:center" onclick="addParticipant()">Register →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTRY EXIT -->
+  <div class="page" id="page-entry-exit">
+    <div class="topbar">
+      <div><div class="page-title">Entry / Exit Log</div><div style="font-size:13px;color:var(--text3)">Real-time check-in and check-out tracking</div></div>
+      <div class="topbar-right">
+        <button class="btn btn-teal btn-sm" onclick="simulateCheckIn()">✓ Simulate QR Check-In</button>
+        <button class="btn btn-rose btn-sm" onclick="simulateCheckOut()">✕ Simulate QR Check-Out</button>
+      </div>
+    </div>
+    <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+      <div class="metric"><div class="metric-accent" style="background:var(--teal)"></div><div class="metric-lbl">Checked In Today</div><div class="metric-val" style="color:var(--teal)">142</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--rose)"></div><div class="metric-lbl">Checked Out</div><div class="metric-val" style="color:var(--rose)">28</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--amber)"></div><div class="metric-lbl">On Campus</div><div class="metric-val" style="color:var(--amber)">318</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--sky)"></div><div class="metric-lbl">Avg Check-in Time</div><div class="metric-val" style="color:var(--sky);font-size:28px">2m 12s</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">QR Scan Entry</span></div>
+        <div style="background:var(--ink3);border:2px dashed var(--border2);border-radius:12px;padding:32px;text-align:center;margin-bottom:14px">
+          <div style="font-size:48px;margin-bottom:10px">📷</div>
+          <div style="font-size:14px;font-weight:500;margin-bottom:6px">Point camera at participant QR</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Or enter participant ID manually below</div>
+          <div style="display:flex;gap:8px;max-width:300px;margin:0 auto">
+            <input class="form-input" id="qrInput" placeholder="IGN-ID or Roll No.">
+            <button class="btn btn-sky" onclick="lookupParticipant()">Lookup</button>
+          </div>
+        </div>
+        <div id="qrResult"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Live Entry / Exit Log</span><span class="badge-live" style="font-size:10px;padding:3px 8px"><div class="pulse-dot"></div>Live</span></div>
+        <div id="entryLog" style="max-height:320px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROOMS -->
+  <div class="page" id="page-rooms">
+    <div class="topbar">
+      <div><div class="page-title">Room Allocation</div><div style="font-size:13px;color:var(--text3)">Manage and reassign room bookings</div></div>
+      <div class="topbar-right">
+        <button class="btn btn-sky btn-sm" onclick="showRoomModal()">+ Assign Room</button>
+        <button class="btn btn-outline btn-sm">⬇ Report</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="rtab('all',this)">All Rooms</button>
+      <button class="tab-btn" onclick="rtab('boys',this)">Boys Hostels</button>
+      <button class="tab-btn" onclick="rtab('girls',this)">Girls Hostel</button>
+      <button class="tab-btn" onclick="rtab('vacant',this)">Vacant Only</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Hostel</th><th>Room</th><th>Type</th><th>Capacity</th><th>Occupied</th><th>Occupants</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="roomTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- HOSTEL MAP -->
+  <div class="page" id="page-hostels">
+    <div class="topbar">
+      <div><div class="page-title">Hostel Map</div><div style="font-size:13px;color:var(--text3)">Visual room availability across floors</div></div>
+      <div class="topbar-right">
+        <select class="form-input" style="width:auto;font-size:13px" id="hostelSelector" onchange="renderHostelMap()">
+          <option value="H1">Hostel 1 (Boys)</option>
+          <option value="H2">Hostel 2 (Boys)</option>
+          <option value="H3">Hostel 3 (Girls)</option>
+        </select>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(0,201,167,0.5)"></div>Available</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(255,184,48,0.5)"></div>Partially Occupied</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(255,90,126,0.5)"></div>Full</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(255,255,255,0.08)"></div>Closed / Maintenance</div>
+    </div>
+    <div class="card" id="hostelMapCard">
+      <div id="hostelMapContent"></div>
+    </div>
+    <div id="roomInfoCard" style="display:none;margin-top:14px" class="card">
+      <div class="card-title" id="roomInfoTitle" style="margin-bottom:12px">Room Details</div>
+      <div id="roomInfoBody"></div>
+    </div>
+  </div>
+
+  <!-- TRANSPORT -->
+  <div class="page" id="page-transport">
+    <div class="topbar">
+      <div><div class="page-title">Transport Schedule</div><div style="font-size:13px;color:var(--text3)">Bus routes, pickups, and arrival coordination</div></div>
+      <div class="topbar-right">
+        <button class="btn btn-sky btn-sm" onclick="showTransportModal()">+ Add Trip</button>
+      </div>
+    </div>
+    <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+      <div class="metric"><div class="metric-accent" style="background:var(--sky)"></div><div class="metric-lbl">Total Trips Today</div><div class="metric-val" style="color:var(--sky)">28</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--teal)"></div><div class="metric-lbl">Completed</div><div class="metric-val" style="color:var(--teal)">16</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--amber)"></div><div class="metric-lbl">In Progress</div><div class="metric-val" style="color:var(--amber)">4</div></div>
+      <div class="metric"><div class="metric-accent" style="background:var(--rose)"></div><div class="metric-lbl">Participants Transported</div><div class="metric-val" style="color:var(--rose)">284</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Active Routes</span></div>
+        <div id="transportList"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Trip Schedule</span></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Time</th><th>Route</th><th>Seats</th><th>Driver</th><th>Status</th></tr></thead>
+          <tbody id="tripTable"></tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RUSH FORECAST -->
+  <div class="page" id="page-rush">
+    <div class="topbar">
+      <div><div class="page-title">Rush Forecast</div><div style="font-size:13px;color:var(--text3)">Expected arrivals and peak period planning</div></div>
+    </div>
+    <div class="g2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Expected Arrivals — Mar 14</span><span class="bdg bdg-rose">Peak Day</span></div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Participants expected per hour</div>
+        <div id="rushBars"></div>
+        <div id="rushLabels" style="display:flex;gap:4px;margin-top:2px"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">3-Day Arrival Forecast</span></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="forecastChart" role="img" aria-label="Bar chart of 3-day arrival forecast">Day 1: 218, Day 2: 164, Day 3: 100 expected arrivals</canvas></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Peak Period Alerts</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="peakAlerts"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Resource Readiness</span></div>
+        <div id="resourceReadiness"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VOLUNTEERS -->
+  <div class="page" id="page-volunteers">
+    <div class="topbar">
+      <div><div class="page-title">Volunteer Directory</div><div style="font-size:13px;color:var(--text3)">Heads, assistant heads, and volunteer contacts</div></div>
+      <div class="topbar-right">
+        <button class="btn btn-sky btn-sm">+ Add Member</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="vtab('all',this)">All Team</button>
+      <button class="tab-btn" onclick="vtab('heads',this)">Heads</button>
+      <button class="tab-btn" onclick="vtab('accomm',this)">Accommodation</button>
+      <button class="tab-btn" onclick="vtab('transport',this)">Transport</button>
+    </div>
+    <div id="volunteerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
+  </div>
+
+</div><!-- end main -->
+
+<!-- MODALS -->
+<div class="modal-overlay" id="roomModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div class="modal-title">Assign Room</div>
+    <div class="modal-sub">Manually assign or reassign a participant to a room</div>
+    <div class="form-group"><label class="form-label">Participant</label><select class="form-input"><option>Rahul Sharma (IGN-001)</option><option>Ananya Gupta (IGN-002)</option><option>Karan Patel (IGN-003)</option></select></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Hostel</label><select class="form-input"><option>Hostel 1 (Boys)</option><option>Hostel 2 (Boys)</option><option>Hostel 3 (Girls)</option></select></div>
+      <div class="form-group"><label class="form-label">Room</label><select class="form-input"><option>101</option><option>102</option><option>205</option><option>301</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Reason for Reassignment</label><input class="form-input" placeholder="Optional note"></div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="document.getElementById('roomModal').style.display='none'">Cancel</button>
+      <button class="btn btn-sky" style="flex:1;justify-content:center" onclick="document.getElementById('roomModal').style.display='none';alert('✅ Room assigned successfully!')">Assign Room</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="transportModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <div class="modal-title">Add Transport Trip</div>
+    <div class="modal-sub">Schedule a new pickup or drop-off trip</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Pickup Point</label><input class="form-input" placeholder="e.g. Railway Station"></div>
+      <div class="form-group"><label class="form-label">Departure Time</label><input type="time" class="form-input" value="14:00"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Vehicle Type</label><select class="form-input"><option>Bus (40 seats)</option><option>Mini Bus (20 seats)</option><option>Van (10 seats)</option></select></div>
+      <div class="form-group"><label class="form-label">Driver Name</label><input class="form-input" placeholder="Driver name"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Driver Phone</label><input class="form-input" placeholder="+91 XXXXX XXXXX"></div>
+    <div class="form-group"><label class="form-label">Volunteer Escort</label><select class="form-input"><option>Priya Singh</option><option>Rahul Mehta</option><option>Anjali Rao</option></select></div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="document.getElementById('transportModal').style.display='none'">Cancel</button>
+      <button class="btn btn-sky" style="flex:1;justify-content:center" onclick="document.getElementById('transportModal').style.display='none';alert('✅ Trip scheduled!')">Schedule Trip</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// DATA
+const participants = [
+  {id:'IGN-001',name:'Rahul Sharma',college:'IIT Delhi',gender:'Male',phone:'9876543210',hostel:'Hostel 1',room:'101',arrival:'Mar 14, 10:30 AM',status:'checkedin'},
+  {id:'IGN-002',name:'Ananya Gupta',college:'NIT Jaipur',gender:'Female',phone:'9812345678',hostel:'Hostel 3',room:'301',arrival:'Mar 14, 11:00 AM',status:'checkedin'},
+  {id:'IGN-003',name:'Karan Patel',college:'BITS Pilani',gender:'Male',phone:'9823456789',hostel:'Hostel 1',room:'102',arrival:'Mar 14, 12:15 PM',status:'checkedin'},
+  {id:'IGN-004',name:'Shreya Bansal',college:'DTU Delhi',gender:'Female',phone:'9834567890',hostel:'Hostel 3',room:'302',arrival:'Mar 14, 1:00 PM',status:'pending'},
+  {id:'IGN-005',name:'Aditya Kumar',college:'VIT Vellore',gender:'Male',phone:'9845678901',hostel:'Hostel 2',room:'201',arrival:'Mar 14, 2:30 PM',status:'checkedin'},
+  {id:'IGN-006',name:'Pooja Mehra',college:'MNIT Jaipur',gender:'Female',phone:'9856789012',hostel:'Hostel 3',room:'303',arrival:'Mar 14, 3:00 PM',status:'pending'},
+  {id:'IGN-007',name:'Dev Agarwal',college:'IIT Bombay',gender:'Male',phone:'9867890123',hostel:'Hostel 1',room:'103',arrival:'Mar 15, 9:00 AM',status:'checkedin'},
+  {id:'IGN-008',name:'Nisha Verma',college:'IIT Kanpur',gender:'Female',phone:'9878901234',hostel:'Hostel 3',room:'304',arrival:'Mar 15, 10:00 AM',status:'pending'},
+  {id:'IGN-009',name:'Rohan Joshi',college:'Manipal University',gender:'Male',phone:'9889012345',hostel:'Hostel 2',room:'202',arrival:'Mar 14, 4:45 PM',status:'checkedin'},
+  {id:'IGN-010',name:'Kavya Sharma',college:'SRM Chennai',gender:'Female',phone:'9890123456',hostel:'Hostel 3',room:'305',arrival:'Mar 14, 5:30 PM',status:'checkedin'},
+];
+
+const rooms = [
+  {hostel:'Hostel 1 (Boys)',room:'101',type:'Twin',cap:2,occupied:2,gender:'Boys',occupants:'Rahul Sharma, Arjun Singh'},
+  {hostel:'Hostel 1 (Boys)',room:'102',type:'Twin',cap:2,occupied:1,gender:'Boys',occupants:'Karan Patel'},
+  {hostel:'Hostel 1 (Boys)',room:'103',type:'Triple',cap:3,occupied:2,gender:'Boys',occupants:'Dev Agarwal, Suresh Kumar'},
+  {hostel:'Hostel 1 (Boys)',room:'104',type:'Twin',cap:2,occupied:0,gender:'Boys',occupants:'—'},
+  {hostel:'Hostel 2 (Boys)',room:'201',type:'Triple',cap:3,occupied:2,gender:'Boys',occupants:'Aditya Kumar, Nikhil Roy'},
+  {hostel:'Hostel 2 (Boys)',room:'202',type:'Twin',cap:2,occupied:1,gender:'Boys',occupants:'Rohan Joshi'},
+  {hostel:'Hostel 2 (Boys)',room:'203',type:'Single',cap:1,occupied:0,gender:'Boys',occupants:'—'},
+  {hostel:'Hostel 3 (Girls)',room:'301',type:'Twin',cap:2,occupied:2,gender:'Girls',occupants:'Ananya Gupta, Divya Singh'},
+  {hostel:'Hostel 3 (Girls)',room:'302',type:'Triple',cap:3,occupied:1,gender:'Girls',occupants:'Shreya Bansal'},
+  {hostel:'Hostel 3 (Girls)',room:'303',type:'Twin',cap:2,occupied:0,gender:'Girls',occupants:'—'},
+  {hostel:'Hostel 3 (Girls)',room:'304',type:'Twin',cap:2,occupied:1,gender:'Girls',occupants:'Kavya Sharma'},
+];
+
+const transports = [
+  {route:'Jodhpur Railway Station → IIT Jodhpur',color:'#4A9EFF',count:142,freq:'Every 45 min'},
+  {route:'Airport → IIT Jodhpur',color:'#00C9A7',count:38,freq:'On demand'},
+  {route:'Bus Stand → IIT Jodhpur',color:'#FFB830',count:64,freq:'Every 1 hr'},
+  {route:'IIT Jodhpur → City Drop',color:'#FF5A7E',count:28,freq:'8 PM & 11 PM'},
+];
+
+const trips = [
+  {time:'08:00 AM',route:'Railway Station → IITJ',seats:'38/40',driver:'Ramesh Kumar',status:'done'},
+  {time:'09:30 AM',route:'Airport → IITJ',seats:'22/25',driver:'Suresh Mehta',status:'done'},
+  {time:'11:00 AM',route:'Railway Station → IITJ',seats:'40/40',driver:'Dinesh Rao',status:'done'},
+  {time:'01:00 PM',route:'Bus Stand → IITJ',seats:'35/40',driver:'Vijay Singh',status:'active'},
+  {time:'02:30 PM',route:'Railway Station → IITJ',seats:'18/40',driver:'Ramesh Kumar',status:'active'},
+  {time:'04:00 PM',route:'Airport → IITJ',seats:'0/25',driver:'Suresh Mehta',status:'upcoming'},
+  {time:'05:30 PM',route:'Railway Station → IITJ',seats:'0/40',driver:'Dinesh Rao',status:'upcoming'},
+  {time:'08:00 PM',route:'IITJ → City Drop',seats:'0/40',driver:'Vijay Singh',status:'upcoming'},
+];
+
+const volunteers = [
+  {name:'Aryan Mathur',role:'Head — Accommodation',zone:'Overall Accommodation',phone:'9801234567',av:'AM',color:'#4A9EFF',type:'heads'},
+  {name:'Sneha Reddy',role:'Head — Transport',zone:'Overall Transport',phone:'9802345678',av:'SR',color:'#00C9A7',type:'heads'},
+  {name:'Vikram Nair',role:'Asst. Head — Boys Hostel',zone:'Hostel 1 & 2',phone:'9803456789',av:'VN',color:'#FFB830',type:'accomm'},
+  {name:'Priya Choudhary',role:'Asst. Head — Girls Hostel',zone:'Hostel 3',phone:'9804567890',av:'PC',color:'#FF5A7E',type:'accomm'},
+  {name:'Rohan Kapoor',role:'Transport Volunteer',zone:'Railway Station Route',phone:'9805678901',av:'RK',color:'#4A9EFF',type:'transport'},
+  {name:'Divya Tiwari',role:'Accommodation Volunteer',zone:'Hostel 1 — Floor 1',phone:'9806789012',av:'DT',color:'#00C9A7',type:'accomm'},
+  {name:'Sahil Gupta',role:'Transport Volunteer',zone:'Airport Route',phone:'9807890123',av:'SG',color:'#FFB830',type:'transport'},
+  {name:'Ayesha Khan',role:'Accommodation Volunteer',zone:'Hostel 3 — Floor 1',phone:'9808901234',av:'AK',color:'#FF5A7E',type:'accomm'},
+  {name:'Nitin Sharma',role:'Transport Volunteer',zone:'Bus Stand Route',phone:'9809012345',av:'NS',color:'#7ED957',type:'transport'},
+  {name:'Meera Iyer',role:'Accommodation Volunteer',zone:'Guest House',phone:'9810123456',av:'MI',color:'#4A9EFF',type:'accomm'},
+];
+
+const logData = [
+  {time:'14:35',type:'in',name:'Rohan Joshi',detail:'IGN-009 · Hostel 2 / 202 · BITS Pilani'},
+  {time:'14:22',type:'in',name:'Aditya Kumar',detail:'IGN-005 · Hostel 2 / 201 · VIT Vellore'},
+  {time:'14:10',type:'out',name:'Karan Patel',detail:'IGN-003 · Hostel 1 / 102 · BITS Pilani'},
+  {time:'13:55',type:'in',name:'Dev Agarwal',detail:'IGN-007 · Hostel 1 / 103 · IIT Bombay'},
+  {time:'13:40',type:'in',name:'Kavya Sharma',detail:'IGN-010 · Hostel 3 / 305 · SRM Chennai'},
+  {time:'13:20',type:'out',name:'Ananya Gupta',detail:'IGN-002 · Hostel 3 / 301 · NIT Jaipur'},
+  {time:'12:50',type:'in',name:'Rahul Sharma',detail:'IGN-001 · Hostel 1 / 101 · IIT Delhi'},
+  {time:'12:30',type:'in',name:'Priya Singh',detail:'IGN-011 · Hostel 3 / 306 · MNIT Jaipur'},
+];
+
+const rushHours = [6,18,34,42,62,80,95,78,55,40,28,18];
+const rushLabels = ['8AM','9','10','11','12','1PM','2','3','4','5','6','7'];
+
+// PAGE NAVIGATION
+function goPage(id, navEl) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(navEl) navEl.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-item').forEach(n=>{
+      if(n.onclick&&n.onclick.toString().includes("'"+id+"'")) n.classList.add('active');
+    });
+  }
+  renderPage(id);
+}
+
+function renderPage(id) {
+  if(id==='participants') renderParticipants('all');
+  if(id==='rooms') renderRooms('all');
+  if(id==='hostels') renderHostelMap();
+  if(id==='transport') { renderTransport(); renderTrips(); }
+  if(id==='rush') renderRush();
+  if(id==='volunteers') renderVolunteers('all');
+  if(id==='entry-exit') renderEntryLog();
+}
+
+// PARTICIPANTS
+let currentPTab = 'all';
+function ptab(type, btn) {
+  currentPTab = type;
+  document.querySelectorAll('#page-participants .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filterParticipants();
+}
+function filterParticipants() {
+  const q = (document.getElementById('participantSearch')?.value||'').toLowerCase();
+  const hf = (document.getElementById('hostelFilter')?.value||'');
+  let data = participants.filter(p=>{
+    const matchQ = !q || p.name.toLowerCase().includes(q)||p.college.toLowerCase().includes(q)||p.id.toLowerCase().includes(q)||p.room.toLowerCase().includes(q);
+    const matchH = !hf || p.hostel.includes(hf.split(' ')[0]+' '+hf.split(' ')[1]);
+    const matchTab = currentPTab==='all'||currentPTab===p.status||(currentPTab==='boys'&&p.gender==='Male')||(currentPTab==='girls'&&p.gender==='Female');
+    return matchQ&&matchH&&matchTab;
+  });
+  renderParticipants(null, data);
+}
+function renderParticipants(tab, data) {
+  if(tab) { currentPTab=tab; data=participants.filter(p=>tab==='all'||tab===p.status||(tab==='boys'&&p.gender==='Male')||(tab==='girls'&&p.gender==='Female')); }
+  const t = document.getElementById('participantTable'); if(!t) return;
+  t.innerHTML = (data||participants).map((p,i)=>`
+    <tr>
+      <td style="color:var(--text3);font-size:11px">${p.id}</td>
+      <td><div style="font-weight:500">${p.name}</div></td>
+      <td style="color:var(--text2)">${p.college}</td>
+      <td><span class="bdg ${p.gender==='Male'?'bdg-sky':'bdg-rose'}">${p.gender}</span></td>
+      <td style="color:var(--text2);font-family:monospace;font-size:12px">${p.phone}</td>
+      <td><span style="font-weight:500">${p.hostel} / ${p.room}</span></td>
+      <td style="color:var(--text2);font-size:11px">${p.arrival}</td>
+      <td><span class="bdg ${p.status==='checkedin'?'bdg-teal':'bdg-amber'}">${p.status==='checkedin'?'Checked In':'Pending'}</span></td>
+      <td><button class="btn btn-outline btn-sm">Edit</button></td>
+    </tr>`).join('');
+}
+
+// ROOMS
+function rtab(type, btn) {
+  document.querySelectorAll('#page-rooms .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRooms(type);
+}
+function renderRooms(type) {
+  const t = document.getElementById('roomTable'); if(!t) return;
+  let data = rooms.filter(r=> type==='all'||
+    (type==='boys'&&r.gender==='Boys')||
+    (type==='girls'&&r.gender==='Girls')||
+    (type==='vacant'&&r.occupied===0));
+  t.innerHTML = data.map(r=>{
+    const pct = Math.round(r.occupied/r.cap*100);
+    const s = r.occupied===r.cap?'full':r.occupied===0?'vacant':'partial';
+    return`<tr>
+      <td>${r.hostel}</td><td style="font-weight:600">${r.room}</td>
+      <td><span class="bdg bdg-slate">${r.type}</span></td>
+      <td style="text-align:center">${r.cap}</td>
+      <td><div style="display:flex;align-items:center;gap:8px">${r.occupied}<div style="flex:1;max-width:80px"><div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${s==='full'?'var(--rose)':s==='vacant'?'var(--teal)':'var(--amber)'}"></div></div></div></div></td>
+      <td style="color:var(--text2);font-size:12px">${r.occupants}</td>
+      <td><span class="bdg ${s==='full'?'bdg-rose':s==='vacant'?'bdg-teal':'bdg-amber'}">${s==='full'?'Full':s==='vacant'?'Vacant':'Partial'}</span></td>
+      <td><button class="btn btn-outline btn-sm" onclick="showRoomModal()">Reassign</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// HOSTEL MAP
+const hostelData = {
+  H1:{name:'Hostel 1 (Boys)',floors:[{f:'Ground Floor',rooms:[{n:'101',s:'full'},{n:'102',s:'partial'},{n:'103',s:'partial'},{n:'104',s:'avail'},{n:'105',s:'full'},{n:'106',s:'avail'},{n:'107',s:'closed'}]},{f:'First Floor',rooms:[{n:'201',s:'full'},{n:'202',s:'partial'},{n:'203',s:'avail'},{n:'204',s:'full'},{n:'205',s:'avail'},{n:'206',s:'avail'},{n:'207',s:'full'}]},{f:'Second Floor',rooms:[{n:'301',s:'avail'},{n:'302',s:'avail'},{n:'303',s:'partial'},{n:'304',s:'avail'},{n:'305',s:'avail'},{n:'306',s:'closed'}]}]},
+  H2:{name:'Hostel 2 (Boys)',floors:[{f:'Ground Floor',rooms:[{n:'101',s:'full'},{n:'102',s:'full'},{n:'103',s:'partial'},{n:'104',s:'avail'},{n:'105',s:'avail'},{n:'106',s:'full'}]},{f:'First Floor',rooms:[{n:'201',s:'partial'},{n:'202',s:'avail'},{n:'203',s:'avail'},{n:'204',s:'full'},{n:'205',s:'avail'}]}]},
+  H3:{name:'Hostel 3 (Girls)',floors:[{f:'Ground Floor',rooms:[{n:'101',s:'full'},{n:'102',s:'full'},{n:'103',s:'partial'},{n:'104',s:'avail'},{n:'105',s:'full'}]},{f:'First Floor',rooms:[{n:'201',s:'avail'},{n:'202',s:'partial'},{n:'203',s:'full'},{n:'204',s:'avail'},{n:'205',s:'avail'},{n:'206',s:'full'}]}]}
+};
+function renderHostelMap() {
+  const sel = document.getElementById('hostelSelector')?.value||'H1';
+  const h = hostelData[sel];
+  const mc = document.getElementById('hostelMapContent'); if(!mc) return;
+  mc.innerHTML = `<div style="font-family:'Bebas Neue',sans-serif;font-size:20px;margin-bottom:16px;color:var(--sky)">${h.name}</div>`+
+    h.floors.map(fl=>`
+      <div class="hostel-floor">
+        <div class="floor-label">${fl.f}</div>
+        <div class="rooms-row">${fl.rooms.map(r=>`
+          <div class="room-cell room-${r.s}" onclick="showRoomInfo('${r.n}','${r.s}')" title="${r.n}">
+            <div>${r.s==='full'?'●':r.s==='partial'?'◑':r.s==='avail'?'○':'✕'}</div>
+            <div class="room-num">${r.n}</div>
+          </div>`).join('')}
+        </div>
+      </div>`).join('');
+}
+function showRoomInfo(room, status) {
+  const c = document.getElementById('roomInfoCard');
+  const t = document.getElementById('roomInfoTitle');
+  const b = document.getElementById('roomInfoBody');
+  c.style.display='block';
+  t.textContent = `Room ${room} — ${status==='full'?'Fully Occupied':status==='partial'?'Partially Occupied':status==='avail'?'Available':'Closed'}`;
+  const occ = status==='full'?2:status==='partial'?1:0;
+  b.innerHTML = `<div class="g2" style="gap:12px"><div><div class="stat-row"><span class="stat-key">Status</span><span class="stat-val"><span class="bdg ${status==='full'?'bdg-rose':status==='partial'?'bdg-amber':status==='avail'?'bdg-teal':'bdg-slate'}">${status}</span></span></div><div class="stat-row"><span class="stat-key">Capacity</span><span class="stat-val">3 beds</span></div><div class="stat-row"><span class="stat-key">Occupied</span><span class="stat-val">${occ}/3</span></div></div><div><div class="stat-row"><span class="stat-key">Type</span><span class="stat-val">Triple Sharing</span></div><div class="stat-row"><span class="stat-key">Facilities</span><span class="stat-val">AC, Attached Bath</span></div><div style="margin-top:10px"><button class="btn btn-sky btn-sm" onclick="showRoomModal()">Assign Participant</button></div></div></div>`;
+}
+
+// TRANSPORT
+function renderTransport() {
+  const el = document.getElementById('transportList'); if(!el) return;
+  el.innerHTML = transports.map(t=>`
+    <div class="transport-row">
+      <div class="route-dot" style="background:${t.color}"></div>
+      <div class="transport-info">
+        <div class="transport-route">${t.route}</div>
+        <div class="transport-meta">${t.freq}</div>
+      </div>
+      <div class="transport-count">${t.count} pax</div>
+    </div>`).join('');
+}
+function renderTrips() {
+  const t = document.getElementById('tripTable'); if(!t) return;
+  t.innerHTML = trips.map(r=>`<tr>
+    <td style="font-weight:600;color:var(--sky)">${r.time}</td>
+    <td>${r.route}</td>
+    <td>${r.seats}</td>
+    <td style="color:var(--text2)">${r.driver}</td>
+    <td><span class="bdg ${r.status==='done'?'bdg-teal':r.status==='active'?'bdg-amber':'bdg-slate'}">${r.status==='done'?'Completed':r.status==='active'?'In Progress':'Scheduled'}</span></td>
+  </tr>`).join('');
+}
+
+// RUSH FORECAST
+function renderRush() {
+  const bars = document.getElementById('rushBars');
+  const labels = document.getElementById('rushLabels');
+  if(!bars||!labels) return;
+  const max = Math.max(...rushHours);
+  bars.innerHTML = `<div style="display:flex;align-items:flex-end;gap:5px;height:90px">` +
+    rushHours.map((v,i)=>`<div class="rush-bar" data-tip="${rushLabels[i]}: ${v} arrivals" style="height:${Math.round(v/max*90)}px;flex:1;background:${v>=80?'rgba(255,90,126,0.7)':v>=50?'rgba(255,184,48,0.7)':'rgba(74,158,255,0.5)'}"></div>`).join('') + '</div>';
+  labels.innerHTML = rushLabels.map(l=>`<div class="rush-label">${l}</div>`).join('');
+
+  const alerts = document.getElementById('peakAlerts');
+  if(alerts) alerts.innerHTML = [
+    {time:'2:00–3:00 PM',msg:'Peak arrivals expected. ~95 participants. Deploy 6+ volunteers.',color:'var(--rose)',icon:'🔴'},
+    {time:'12:00–1:00 PM',msg:'Medium rush. ~80 participants. Ensure 4 buses on standby.',color:'var(--amber)',icon:'🟡'},
+    {time:'10:00–11:00 AM',msg:'Moderate flow. ~62 participants. Normal operations.',color:'var(--sky)',icon:'🔵'},
+  ].map(a=>`<div style="display:flex;gap:12px;padding:12px;background:var(--ink3);border-radius:9px;border:1px solid var(--border);align-items:flex-start">
+    <div style="font-size:18px">${a.icon}</div>
+    <div><div style="font-size:13px;font-weight:600;color:${a.color};margin-bottom:3px">${a.time}</div><div style="font-size:12px;color:var(--text2)">${a.msg}</div></div>
+  </div>`).join('');
+
+  const res = document.getElementById('resourceReadiness');
+  if(res) res.innerHTML = [
+    {label:'Rooms Ready',val:76,max:76,color:'var(--teal)'},
+    {label:'Volunteers on Duty',val:18,max:24,color:'var(--sky)'},
+    {label:'Buses Available',val:5,max:8,color:'var(--amber)'},
+    {label:'QR Scanners Active',val:3,max:4,color:'var(--lime)'},
+  ].map(r=>`<div style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--text2)">${r.label}</span><span style="font-weight:600;color:${r.color}">${r.val}/${r.max}</span></div>
+    <div class="prog-bar" style="height:7px"><div class="prog-fill" style="width:${Math.round(r.val/r.max*100)}%;background:${r.color}"></div></div>
+  </div>`).join('');
+}
+
+// VOLUNTEERS
+function vtab(type, btn) {
+  document.querySelectorAll('#page-volunteers .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderVolunteers(type);
+}
+function renderVolunteers(type) {
+  const g = document.getElementById('volunteerGrid'); if(!g) return;
+  const data = volunteers.filter(v=>type==='all'||v.type===type);
+  g.innerHTML = data.map(v=>`
+    <div class="vol-card">
+      <div class="vol-av" style="background:${v.color}22;color:${v.color};border-color:${v.color}44">${v.av}</div>
+      <div style="flex:1">
+        <div class="vol-name">${v.name}</div>
+        <div class="vol-role">${v.role}</div>
+        <div class="vol-zone">📍 ${v.zone}</div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <span style="font-size:11px;color:var(--text3);font-family:monospace">${v.phone}</span>
+          <button class="btn btn-outline btn-sm">📞 Call</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ENTRY LOG
+const logItems = [...logData];
+function renderEntryLog() {
+  const el = document.getElementById('entryLog'); if(!el) return;
+  el.innerHTML = logItems.slice(0,12).map(l=>`
+    <div class="log-item">
+      <div class="log-time">${l.time}</div>
+      <div class="log-icon" style="background:${l.type==='in'?'rgba(0,201,167,0.15)':'rgba(255,90,126,0.15)'}">
+        ${l.type==='in'?'↙':'↗'}
+      </div>
+      <div class="log-body">
+        <div class="log-name">${l.name} <span style="font-size:11px;color:${l.type==='in'?'var(--teal)':'var(--rose)'}">${l.type==='in'?'Checked In':'Checked Out'}</span></div>
+        <div class="log-detail">${l.detail}</div>
+      </div>
+    </div>`).join('');
+}
+
+function simulateCheckIn() {
+  const names = ['Pooja Mehra','Nisha Verma','Arjun Singh','Priya Patil','Mohit Soni'];
+  const n = names[Math.floor(Math.random()*names.length)];
+  const now = new Date(); const h=now.getHours(); const m=now.getMinutes().toString().padStart(2,'0');
+  logItems.unshift({time:`${h}:${m}`,type:'in',name:n,detail:`IGN-0${Math.floor(Math.random()*90+10)} · Hostel 1 / ${Math.floor(Math.random()*9+1)}0${Math.floor(Math.random()*9+1)} · College`});
+  renderEntryLog();
+}
+function simulateCheckOut() {
+  const p = logItems.find(l=>l.type==='in');
+  if(p) { const now=new Date(); const h=now.getHours(); const m=now.getMinutes().toString().padStart(2,'0'); logItems.unshift({...p,time:`${h}:${m}`,type:'out'}); renderEntryLog(); }
+}
+
+// QR LOOKUP
+function lookupParticipant() {
+  const v = document.getElementById('qrInput')?.value;
+  const p = participants.find(x=>x.id.toLowerCase()===v.toLowerCase()||x.name.toLowerCase().includes(v.toLowerCase()));
+  const r = document.getElementById('qrResult'); if(!r) return;
+  if(p) r.innerHTML = `<div style="background:rgba(0,201,167,0.1);border:1px solid rgba(0,201,167,0.3);border-radius:10px;padding:16px"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:15px;font-weight:600;margin-bottom:4px">${p.name}</div><div style="font-size:12px;color:var(--text2)">${p.id} · ${p.college}</div><div style="font-size:12px;color:var(--text2);margin-top:3px">${p.hostel} / Room ${p.room} · ${p.gender}</div></div><span class="bdg bdg-teal">Valid Pass</span></div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-teal btn-sm" onclick="simulateCheckIn();document.getElementById('qrResult').innerHTML=''">✓ Check In</button><button class="btn btn-rose btn-sm" onclick="simulateCheckOut();document.getElementById('qrResult').innerHTML=''">✕ Check Out</button><button class="btn btn-outline btn-sm">View Profile</button></div></div>`;
+  else r.innerHTML = `<div style="background:rgba(255,90,126,0.1);border:1px solid rgba(255,90,126,0.3);border-radius:10px;padding:14px;color:var(--rose);font-size:13px">❌ Participant not found. Check ID and try again.</div>`;
+}
+
+// ADD PARTICIPANT
+function updateRooms() {
+  const sel = document.getElementById('ap_room'); if(!sel) return;
+  sel.innerHTML = '<option value="">Select room</option>';
+  const avail = ['101','104','106','201','203','305','306','307','308'];
+  avail.forEach(r=>sel.innerHTML+=`<option>${r}</option>`);
+}
+function addParticipant() {
+  const n = document.getElementById('ap_name')?.value;
+  if(!n) { alert('Please enter participant name'); return; }
+  alert(`✅ Participant "${n}" registered successfully!\nA QR pass has been generated and sent to their email.`);
+}
+
+// DASHBOARD WIDGETS
+function renderDashboard() {
+  // Hostel occupancy bars
+  const ho = document.getElementById('hostelOccupancy');
+  if(ho) {
+    const hostels = [
+      {name:'Hostel 1 (Boys)',occ:68,cap:100,color:'var(--sky)'},
+      {name:'Hostel 2 (Boys)',occ:42,cap:80,color:'var(--teal)'},
+      {name:'Hostel 3 (Girls)',occ:55,cap:90,color:'var(--rose)'},
+      {name:'Guest House',occ:12,cap:20,color:'var(--amber)'},
+    ];
+    ho.innerHTML = hostels.map(h=>{const pct=Math.round(h.occ/h.cap*100); return`
+      <div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:var(--text2)">${h.name}</span><span style="font-weight:600;color:${h.color}">${h.occ}/${h.cap} <span style="font-weight:400;color:var(--text3)">(${pct}%)</span></span></div>
+        <div class="prog-bar" style="height:8px"><div class="prog-fill" style="width:${pct}%;background:${h.color}"></div></div>
+      </div>
+    `;}).join('');
+  }
+
+  // Recent activity
+  const ra = document.getElementById('recentActivity');
+  if(ra) {
+    ra.innerHTML = logData.slice(0,5).map(l=>`
+      <div class="log-item">
+        <div class="log-time">${l.time}</div>
+        <div class="log-icon" style="background:${l.type==='in'?'rgba(0,201,167,0.15)':'rgba(255,90,126,0.15)'}">${l.type==='in'?'↙':'↗'}</div>
+        <div class="log-body"><div class="log-name">${l.name} <span style="font-size:11px;color:${l.type==='in'?'var(--teal)':'var(--rose)'}">${l.type==='in'?'Checked In':'Checked Out'}</span></div><div class="log-detail">${l.detail}</div></div>
+      </div>`).join('');
+  }
+}
+
+// CHARTS
+function initCharts() {
+  const ch = (id, type, labels, datasets, opts={}) => {
+    const el = document.getElementById(id); if(!el) return;
+    return new Chart(el, {type, data:{labels,datasets}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, ...opts}});
+  };
+
+  ch('splitChart','doughnut',['Boys (198)','Girls (120)'],[{data:[198,120],backgroundColor:['#4A9EFF','#FF5A7E'],borderWidth:0}],{plugins:{legend:{display:true,labels:{color:'#9BA3BC',font:{size:11}}}}});
+
+  ch('arrivalChart','bar',['8AM','9','10','11','12','1PM','2','3','4','5','6','7'],[{data:[6,18,34,42,62,80,95,78,55,40,28,18],backgroundColor:rushHours.map(v=>v>=80?'rgba(255,90,126,0.7)':v>=50?'rgba(255,184,48,0.6)':'rgba(74,158,255,0.5)'),borderRadius:4}],{scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#9BA3BC',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#9BA3BC'}}}});
+
+  ch('collegeChart','bar',['IIT Delhi','BITS Pilani','NIT Jaipur','VIT Vellore','DTU','IIT Bombay','Manipal','SRM'],[{data:[48,42,38,35,30,28,24,20],backgroundColor:'rgba(74,158,255,0.6)',borderRadius:4}],{indexAxis:'y',scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#9BA3BC',font:{size:10}}},y:{grid:{display:false},ticks:{color:'#9BA3BC',font:{size:10}}}}});
+
+  ch('forecastChart','bar',['Day 1 (Mar 14)','Day 2 (Mar 15)','Day 3 (Mar 16)'],[{data:[218,164,100],backgroundColor:['rgba(255,90,126,0.7)','rgba(255,184,48,0.6)','rgba(74,158,255,0.5)'],borderRadius:6}],{scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#9BA3BC'}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#9BA3BC'}}}});
+}
+
+// MODALS
+function showRoomModal() { document.getElementById('roomModal').style.display='flex'; }
+function showTransportModal() { document.getElementById('transportModal').style.display='flex'; }
+
+// INIT
+renderDashboard();
+setTimeout(initCharts, 80);
+</script>
+</body>
+</html>
