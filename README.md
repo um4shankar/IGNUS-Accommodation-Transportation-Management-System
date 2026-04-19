@@ -122,3 +122,23 @@ The goal of this platform is to digitize and streamline these operations.
 ## Impact
 
 This platform would reduce manual coordination, improve room allocation efficiency, strengthen participant safety, and help teams manage rush periods effectively during IGNUS.
+
+<img width="1366" height="768" alt="Screenshot 2026-04-18 125904" src="https://github.com/user-attachments/assets/f08dcdb4-41eb-4288-9420-21c448ee6345" />
+
+<img width="1366" height="768" alt="Screenshot 2026-04-18 130014" src="https://github.com/user-attachments/assets/bade16e6-bed2-4011-976f-c500bea6706d" />
+
+<img width="1366" height="768" alt="Screenshot 2026-04-18 130024" src="https://github.com/user-attachments/assets/4494a3ec-b861-40db-9e38-c10ead407321" />
+
+<img width="1366" height="768" alt="Screenshot 2026-04-18 130037" src="https://github.com/user-attachments/assets/04d1ed97-7cf5-4820-9da4-258066e2ef30" />
+
+<img width="1366" height="768" alt="Screenshot 2026-04-18 130053" src="https://github.com/user-attachments/assets/b6292859-e144-469b-bde7-7e20876d59a2" />
+
+<img width="1366" height="768" alt="Screenshot 2026-04-18 130121" src="https://github.com/user-attachments/assets/bd4563b3-c99e-499b-bf21-1cbd96d2fbb2" />
+
+<img width="1366" height="768" alt="Screenshot 2026-04-18 130202" src="https://github.com/user-attachments/assets/7efbe9b5-e874-4d4a-bced-44ca14d073ca" />
+
+<img width="1366" height="768" alt="Screenshot 2026-04-18 130217" src="https://github.com/user-attachments/assets/bf9a4013-13b7-45a3-9326-a107657d679c" />
+
+<img width="1366" height="768" alt="Screenshot 2026-04-18 130225" src="https://github.com/user-attachments/assets/213a88c6-f1fd-4cd5-8b9f-a7b0a4b40847" />
+
+
